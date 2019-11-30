@@ -4,7 +4,6 @@
 
 use std::io;
 use std::net::{IpAddr, SocketAddr, UdpSocket};
-use std::thread::Thread;
 
 use rand::Rng;
 
@@ -28,7 +27,7 @@ fn main() {
 
     // Allocate a buffer for it
     let mut buf = [0; 65535];
-    ping(&socket);
+//    ping(&socket);
 
     // main "game" loop
     println!("entering main loop...");
