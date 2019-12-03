@@ -10,19 +10,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Server socket ready.");
 
     loop {
-        let (mut stream, addr) = listener.accept().await?;
+        let (mut stream, remote) = listener.accept().await?;
 
         tokio::spawn(async move {
             let mut got: String;
             let mut buf = [0; 1024];
+            let (mut r, mut w) = stream.split();
 
             // In a loop, read data from the socket and write the data back.
             loop {
-                match stream.read(&mut buf).await {
+                match r.read(&mut buf).await {
                     Ok(n) if n == 0 => return, // socket closed
                     Ok(n) => {
                         got = String::from_utf8_lossy(&buf[..n]).into_owned();
-                        println!("Got data from client {} > {}", addr, got);
+                        println!("Got data from client {} > {}", remote, got);
                         n
                     }
                     Err(e) => {
@@ -32,10 +33,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 };
 
                 // Write the data back
-                let msg = format!("{} [{}]", got, addr);
-                match stream.write_all(msg.as_bytes()).await {
+                let msg = format!("{} [{}]", got, remote);
+                match w.write_all(msg.as_bytes()).await {
                     Ok(_) => {
-                        println!("Sent back to client {}  < {}", addr, msg)
+                        println!("Sent back to client {}  < {}", remote, msg)
                     }
                     Err(e) => println!("Failed to write to socket; err = {:?}", e),
                 }
