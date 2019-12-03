@@ -5,12 +5,12 @@
 use tokio::net::TcpListener;
 use tokio::prelude::*;
 
-pub async fn listen(addr: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let mut listener = TcpListener::bind(addr).await?;
+pub async fn listen(addr: &str) {
+    let mut listener = TcpListener::bind(addr).await.unwrap();
     println!("Server socket ready. [{}]", addr);
 
     loop {
-        let (mut stream, remote) = listener.accept().await?;
+        let (mut stream, remote) = listener.accept().await.unwrap();
 
         tokio::spawn(async move {
             let mut got: String;
