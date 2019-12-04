@@ -5,6 +5,13 @@
 use tokio::net::TcpListener;
 use tokio::prelude::*;
 
+/// Start listening on the given address.
+/// This method binds the given UDP socket and keeps looping indefinitely.
+///
+/// -------
+///
+/// ## Arguments
+/// * `addr` - IP address and port to listen on
 pub async fn listen(addr: &str) {
     let mut listener = TcpListener::bind(addr).await.unwrap();
     println!("TCP socket ready. [{}]", addr);

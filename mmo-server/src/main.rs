@@ -8,8 +8,9 @@ mod listeners;
 
 #[tokio::main]
 async fn main() {
+    // Spawn a task to handle UDP requests.
     tokio::spawn(udp::listen("127.0.0.1:30000"));
-    tcp::listen("127.0.0.1:9000").await;
 
-//    loop {}
+    // Start TCP handling, and blocks the main thread.
+    tcp::listen("127.0.0.1:9000").await;
 }

@@ -3,12 +3,12 @@
  */
 
 use chrono::prelude::*;
+use rand::Rng;
 use std::env;
 use std::io::{Read, Write};
-use std::net::{TcpStream, UdpSocket, SocketAddr};
+use std::net::{SocketAddr, TcpStream, UdpSocket};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -81,7 +81,7 @@ fn udp(server: &str) {
                 socket = s;
                 break;
             }
-            _ => ()
+            _ => (),
         }
     }
 
