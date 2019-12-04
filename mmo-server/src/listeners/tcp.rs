@@ -24,7 +24,6 @@ pub async fn listen(addr: &str) {
                     Ok(n) => {
                         got = String::from_utf8_lossy(&buf[..n]).into_owned();
                         println!("Got data from TCP client {} > {}", remote, got);
-                        n
                     }
                     Err(e) => {
                         println!("Failed to read from TCP socket; err = {:?}", e);

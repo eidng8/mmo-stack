@@ -21,7 +21,6 @@ pub async fn listen(addr: &str) {
                 remote = addr;
                 got = String::from_utf8_lossy(&buf[..cb]).into_owned();
                 println!("Got data from UDP client {} > {}", remote, got);
-                cb
             }
             Err(e) => {
                 println!("Failed to read from UDP socket; err = {:?}", e);
