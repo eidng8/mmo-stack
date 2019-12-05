@@ -29,9 +29,9 @@ pub async fn listen(addr: &str) {
     let mut buf = [0; 65535];
     let socket = UdpSocket::bind(addr).await.unwrap();
     println!("UDP socket ready. [{}]", addr);
+
     let (mut r, w) = socket.split();
     let (mut tx, rx) = mpsc::channel(1024);
-
     tokio::spawn(send(rx, w));
 
     loop {
