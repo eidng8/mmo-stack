@@ -36,16 +36,15 @@ pub async fn listen(addr: &str) {
     loop {
         let (stream, remote) = listener.accept().await.unwrap();
 
-        tokio::spawn(handle_connection(remote, stream, &mut tx));
+        tokio::spawn(handle_connection(remote, stream, tx.clone()));
     }
 }
 
 async fn handle_connection<'a>(
     remote: SocketAddr,
     mut stream: TcpStream,
-    tx: &mut mpsc::Sender<RemoteContent<'a>>,
+    mut tx: mpsc::Sender<RemoteContent<'a>>,
 ) {
-    let mut got: String;
     let mut buf = [0; 1024];
     let (mut r, w) = stream.split();
     let warc = Arc::new(Mutex::new(w));
@@ -54,20 +53,30 @@ async fn handle_connection<'a>(
     loop {
         match r.read(&mut buf).await {
             Ok(n) if n == 0 => break, // socket closed
-            Ok(n) => {
-                got = String::from_utf8_lossy(&buf[..n]).into_owned();
-                println!("Got data from TCP client {} > {}", remote, got);
-                tx.send(RemoteContent {
-                    stream: Arc::clone(&warc),
-                    content: Content { msg: format!("") },
-                });
-            }
+            Ok(n) => process(remote, &buf, n, Arc::clone(&warc), &mut tx),
             Err(e) => {
                 println!("Failed to read from TCP socket; err = {:?}", e);
                 break;
             }
         };
     }
+}
+
+fn process<'a>(
+    remote: SocketAddr,
+    buf: &[u8],
+    cb: usize,
+    stream: Arc<Mutex<WriteHalf<'a>>>,
+    tx: &mut mpsc::Sender<RemoteContent<'a>>,
+) {
+    let got = String::from_utf8_lossy(&buf[..cb]).into_owned();
+    println!("Got data from TCP client {} > {}", remote, got);
+    tx.send(RemoteContent {
+        stream,
+        content: Content {
+            msg: format!("Got ya [{}]! Ya said {}", remote, got),
+        },
+    });
 }
 
 async fn send<'a>(mut rx: mpsc::Receiver<RemoteContent<'a>>) {
