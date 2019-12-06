@@ -37,4 +37,5 @@
 //! from another `mpsc::channel` that holds results of all message processes.
 
 pub mod tcp;
+pub mod tcp_struct;
 pub mod udp;

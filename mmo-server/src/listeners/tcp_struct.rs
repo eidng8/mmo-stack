@@ -58,9 +58,7 @@ impl TcpHandler<'_> {
         self.listener = Some(TcpListener::bind(self.bound).await.unwrap());
         println!("TCP socket ready. [{}]", self.bound);
         // let (tx, rx) = mpsc::channel(1024);
-        {
-            tokio::spawn(self.send());
-        }
+        tokio::spawn(self.send());
         loop {
             if let Some(ref mut listener) = self.listener {
                 let (mut stream, remote) = listener.accept().await.unwrap();
@@ -81,14 +79,14 @@ impl TcpHandler<'_> {
         }
     }
 
-    async fn handle_connection(&self, remote: SocketAddr) {
+    async fn handle_connection(&mut self, remote: SocketAddr) {
         let mut buf = [0; 1024];
         // let (mut r, w) = stream.split();
         // let warc = Arc::new(Mutex::new(w));
 
         // In a loop, read data from the socket and write the data back.
         loop {
-            if let Some(conn) = self.connections.get(&remote) {
+            if let Some(conn) = self.connections.get_mut(&remote) {
                 match conn.istream.read(&mut buf).await {
                     Ok(n) if n == 0 => break, // socket closed
                     Ok(n) => self.process(remote.clone(), &buf, n),
@@ -101,7 +99,7 @@ impl TcpHandler<'_> {
         }
     }
 
-    fn process(&self, remote: SocketAddr, buf: &[u8], cb: usize) {
+    fn process(&mut self, remote: SocketAddr, buf: &[u8], cb: usize) {
         let got = String::from_utf8_lossy(&buf[..cb]);
         println!("Got data from TCP client {} > {}", remote, got);
         self.tx.send(RemoteContent {
@@ -112,10 +110,10 @@ impl TcpHandler<'_> {
         });
     }
 
-    async fn send(&self) {
+    async fn send(&mut self) {
         loop {
             if let Some(rc) = self.rx.recv().await {
-                if let Some(mut io) = self.connections.get(&rc.addr) {
+                if let Some(io) = self.connections.get_mut(&rc.addr) {
                     let msg = rc.content.msg;
                     match io.ostream.write_all(msg.as_bytes()).await {
                         Ok(_) => println!("Sent back to TCP client < {}", msg),
