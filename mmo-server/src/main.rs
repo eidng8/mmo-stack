@@ -11,6 +11,8 @@ async fn main() {
     // Spawn a task to handle UDP requests.
     tokio::spawn(udp::listen("127.0.0.1:30000"));
 
-    // Start TCP handling, and blocks the main thread.
     tcp::listen("127.0.0.1:9000").await;
+    // Start TCP handling, and blocks the main thread.
+    // let mut tcp = tcp::TcpHandler::new("127.0.0.1:9000");
+    // tcp.listen().await;
 }
