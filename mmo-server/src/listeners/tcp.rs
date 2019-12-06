@@ -21,7 +21,7 @@ struct RemoteContent<'a> {
 }
 
 /// Start listening on the given address.
-/// This method binds the given UDP socket and keeps looping indefinitely.
+/// This method binds the given TCP socket and keeps looping indefinitely.
 ///
 /// -------
 ///
